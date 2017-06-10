@@ -13,19 +13,20 @@ def validate_alert(data):
 	        "source" : {"type" : "string"},
 	        "name" : {"type" : "string"},
 	        "status" : {"type" : "string"},
-    	},
+    		},
 	}
 	try:
 		alert = json.loads(data)
 		validate(alert, alert_schema)
 		alert_valid = True
-    except jsonschema.exceptions.ValidationError as ve:
-    	alert_valid = False
+    	except jsonschema.exceptions.ValidationError as ve:
+    		alert_valid = False
+	return alert_valid
 
 def send_alert(alert):
-	bp = bigpanda.Client(api_token="686a68bc876dc666")
-    bp_alert = bp.alert(**alert)
-    bp_alert.send()
+	bp = bigpanda.Client(api_token='')
+	bp_alert = bp.alert(**alert)
+	bp_alert.send()
 
 def transform_alert(data):
 	data = json.loads(data)
@@ -46,11 +47,11 @@ def splunk_webhook():
 	if validate_alert(json_request):
 		alert = transform_alert(json_request)
 		send_alert(alert)
-	return ""
+	return "Alert sent."
 
 @app.route('/healthcheck')
 def hello_world():
-    return 'Alive.'
+	return 'Alive.'
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', threaded=True)
